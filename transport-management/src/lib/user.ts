@@ -30,12 +30,14 @@ export const registerUser = async (params: { user?: NewUser; metaData?: MetaData
 
 
     if(error){
-        throw new Error(`${error}`)
+        console.log("🚀 ~ registerUser ~ error:", error)
     }
 
     if(newUser){
         const newTenant = await registerTenant({cnpj: metaData?.cnpj})
         console.log("🚀 ~ registerUser ~ newTenant:", newTenant)
+
+        return newTenant
     }
 
     return newUser

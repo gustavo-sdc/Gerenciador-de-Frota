@@ -57,7 +57,7 @@ function Login(){
 
 
     return(
-        <main className="bg-blue-700 w-screen h-screen flex flex-col items-center justify-center">
+        <main className="bg-gradient-to-r from-gray-500 to-gray-700 text-gray w-screen h-screen flex flex-col items-center justify-center">
 
             <Toaster />
 

@@ -13,8 +13,8 @@ interface Vehicle {
   plate: string;
   year: number;
   color: string;
-  gasType: string;
-  lastMileage: number;
+  fuel_type: string;
+  km_atual: number;
   status: "active" | "inactive";
 }
 
@@ -25,7 +25,7 @@ function Frota() {
 
   // 🔐 Tenant real vindo do contexto
   const auth = useContext(AuthContext);
-  const tenant_id = auth.tenant_id;
+  const tenant_id = auth.tenantId;
 
   async function loadVehicles(searchTerm = "") {
     if (!tenant_id) return;
@@ -105,8 +105,8 @@ function Frota() {
                 details={[
                   { details: `Ano: ${vehicle.year}` },
                   { details: `Cor: ${vehicle.color}` },
-                  { details: `Combustível: ${vehicle.gasType}` },
-                  { details: `KM Atual: ${vehicle.lastMileage}` },
+                  { details: `Combustível: ${vehicle.fuel_type}` },
+                  { details: `KM Atual: ${vehicle.km_atual}` },
                   {
                     details: `Status: ${isInactive ? "Inativo" : "Ativo"}`,
                   },

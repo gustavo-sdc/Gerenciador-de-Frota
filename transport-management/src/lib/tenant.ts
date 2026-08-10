@@ -10,18 +10,20 @@ interface dataTenant{
 
 export const registerTenant = async(data: dataTenant) => {
     try{
+        console.log("🚀 ~ registerTenant ~ data:", data)
+
         const {data: newTenant, error} = await supabase
         .from('tenants')
-        .insert(data.cnpj)
+        .insert(data)
         .select()
-        .single()
 
         if(error){
-            throw new Error('Erro ao cadastrar tenant')
+            throw new Error(error.message)
         }
 
         return newTenant
-    }catch(e: any){
+    }catch( e: any){
+        console.log("🚀 ~ registerTenant error ~ e:", e)
         throw new Error(e.message)
     }
 }

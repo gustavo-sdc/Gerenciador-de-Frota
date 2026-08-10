@@ -11,7 +11,10 @@ export default function GestaoFrota() {
   const navigate = useNavigate();
 
   const userId = React.useContext(AuthContext);
-  console.log("User ID do contexto:", userId.userId);
+  const tenantId = userId?.tenantId;
+
+  console.log("🚀 ~ GestaoFrota ~ userId:", userId)
+  console.log("User ID do contexto:", userId.tenantId);
 
   console.log("ID do veículo:", id);
 
@@ -22,9 +25,10 @@ export default function GestaoFrota() {
     plate: "",
     year: "",
     color: "",
-    gasType: "",
-    lastMileage: "",
-    status: "active",
+    fuel_type: "",
+    km_aquisicao: "",
+    km_atual: "",
+    status: true,
   });
 
   const isEdit = Boolean(id);
@@ -36,7 +40,7 @@ export default function GestaoFrota() {
   }, [id]);
 
   async function loadVehicle() {
-    const { data, error } = await getObject(userId.userId!, "vehicles", {
+    const { data, error } = await getObject(tenantId!, "vehicles", {
       id,
     });
 
@@ -48,8 +52,9 @@ export default function GestaoFrota() {
         plate: v.plate,
         year: v.year,
         color: v.color,
-        gasType: v.gasType,
-        lastMileage: v.lastMileage,
+        fuel_type: v.fuel_type,
+        km_aquisicao: v.km_aquisicao,
+        km_atual: v.km_atual,
         status: v.status,
       });
     }
@@ -66,8 +71,9 @@ export default function GestaoFrota() {
     const payload = {
       ...vehicle,
       year: Number(vehicle.year),
-      lastMileage: Number(vehicle.lastMileage),
-      tenant_id: userId.userId!,
+      km_atual: Number(vehicle.km_atual),
+      km_aquisicao: Number(vehicle.km_aquisicao),
+      tenant_id: tenantId!,
     };
 
     if (isEdit) {
@@ -94,11 +100,12 @@ export default function GestaoFrota() {
           <Input type="text" label="Placa" name="plate" value={vehicle.plate} onChange={handleChange} />
           <Input type="number" label="Ano" name="year" value={vehicle.year} onChange={handleChange} />
           <Input type="text" label="Cor" name="color" value={vehicle.color} onChange={handleChange} />
-          <Input type="text" label="Combustível" name="gasType" value={vehicle.gasType} onChange={handleChange} />
-          <Input type="number" label="KM Atual" name="lastMileage" value={vehicle.lastMileage} onChange={handleChange} />
+          <Input type="text" label="Combustível" name="fuel_type" value={vehicle.fuel_type} onChange={handleChange} />
+          <Input type="number" label="KM de Aquisição" name="km_aquisicao" value={vehicle.km_aquisicao} onChange={handleChange} />
+          <Input type="number" label="KM Atual" name="km_atual" value={vehicle.km_atual} onChange={handleChange} />
         </div>
 
-        {vehicle.status === "inactive" && (
+        {vehicle.status === false && (
           <p className="mt-4 text-sm text-red-500">
             Este veículo está inativo e não pode ser editado.
           </p>
@@ -111,7 +118,7 @@ export default function GestaoFrota() {
 
           <Button
             type="primary"
-            disabled={loading || vehicle.status === "inactive"}
+            disabled={loading || vehicle.status === false}
             onClick={handleSubmit}
           >
             {loading ? "Salvando..." : isEdit ? "Atualizar" : "Cadastrar"}
