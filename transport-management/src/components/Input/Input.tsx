@@ -11,7 +11,7 @@ interface InputData {
 
 function Input(data: InputData) {
   const themeColors = {
-    light: "text-gray-400",
+    light: "text-gray-100",
     dark: "text-gray-200",
   };
 
@@ -30,7 +30,7 @@ function Input(data: InputData) {
         type={data.type}
         name={data.name}
         id={data.name}
-        className={`bg-gray-100 rounded-xl w-full p-2 outline-0 m-0 ${
+        className={`bg-gray-100 rounded-sm w-full p-2 outline-0 m-0 ${
           themeColors[data.theme ? data.theme : "light"]
         }`}
         value={data.value}

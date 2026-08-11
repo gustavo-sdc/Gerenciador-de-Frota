@@ -44,13 +44,19 @@ export const registerUser = async (params: { user?: NewUser; metaData?: MetaData
 }
 
 export const login = async (user: NewUser) =>{
+    console.log("🚀 ~ login ~ user:", user)
+
     const {data: loggedUser, error} = await supabase.auth.signInWithPassword({
         email: user.email,
         password: user.password
     })
 
+    console.log("🚀 ~ login ~ loggedUser:", loggedUser)
+
+    
+
     if(error){
-        throw new Error('Erro ao fazer login')
+        throw new Error(error.message)
     }
 
     return loggedUser

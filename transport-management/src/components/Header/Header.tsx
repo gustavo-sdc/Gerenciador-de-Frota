@@ -66,10 +66,7 @@ export default function Header({ items }: ItemsProps) {
       {/* NAV */}
       <nav
         className={`
-          flex flex-col gap-3 px-4 pb-4
-          md:flex-row md:gap-4 md:justify-center md:pl-20
-          ${menuOpen ? "block" : "hidden"}
-          md:block
+          flex items-center gap-1 px-4 pb-4 wrap-normal w-full px-20
         `}
       >
         {items.map((item) => (

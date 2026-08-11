@@ -21,20 +21,19 @@ function Login(){
         setUser({...user, [e.target.name]: e.target.value})
     }
 
-
     const submitLogin = async (e: React.FormEvent) =>{
         e.preventDefault()
-
-        
 
         setUser({
             email: user.email,
             password: user.password
         })
-
+        
+        
         try {
+            
             const submit = await login(user)
-            console.log(submit)
+            console.log("🚀 ~ submitLogin ~ submit:", submit)
 
             if(submit.user.role === 'authenticated'){
                 authContextData.toggleAuth()
@@ -44,11 +43,10 @@ function Login(){
                 Navigate('/dashboard')
             }
 
-            throw new Error(submit.error.message)
         }catch(e){
             console.log(e)
 
-            toast.error(`Erro no login`)
+            toast.error(e.message)
 
             setLoginError(true)
         }
@@ -57,13 +55,13 @@ function Login(){
 
 
     return(
-        <main className="bg-gradient-to-r from-gray-500 to-gray-700 text-gray w-screen h-screen flex flex-col items-center justify-center">
+        <main className="bg-gradient-to-r from-blue-800 via-blue-500 to-blue-400 text-gray w-screen h-screen flex flex-col items-center justify-center">
 
-            <Toaster />
+            <Toaster /> 
 
-            <h1 className="text-2xl font-bold mb-8 text-gray-300 px-4 text-center max-w-[400px] ">{ loginError ? `Tente novamente!` : `Seja bem vindo ao seu gerenciador de frotas!`}</h1>
+            <h1 className="text-3xl font-regular mb-8 text-gray-200 px-4 text-center max-w-[400px] ">{ loginError ? `Tente novamente!` : `Seja bem vindo ao seu gerenciador de frotas!`}</h1>
             
-            <form action="submit" className="w-9/11 max-w-[400px]">
+            <form action="submit" className="w-xs">
 
                 <div className="lg-my-10 sm-my-25">
                     <Input label="Email:" name="email" type="email" value={user.email} onChange={handleChange}/>
@@ -76,7 +74,7 @@ function Login(){
                     <a href="/register" className="text-gray-200 text-sm">Cadastrar-se</a>
                 </div>
 
-                <button type="submit" className="bg-black btn p-2 rounded-xl w-full text-gray-300 " onClick={submitLogin} >Login</button>
+                <button type="submit" className="bg-gray-800 btn p-2 rounded-xl w-full text-gray-300 font-bold cursor-pointer" onClick={submitLogin} >Login</button>
 
             </form>
         </main>
