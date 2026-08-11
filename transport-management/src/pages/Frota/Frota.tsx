@@ -26,6 +26,7 @@ function Frota() {
   // 🔐 Tenant real vindo do contexto
   const auth = useContext(AuthContext);
   const tenant_id = auth.tenantId;
+  console.log("🚀 ~ Frota ~ auth:", auth)
 
   async function loadVehicles(searchTerm = "") {
     if (!tenant_id) return;
@@ -68,7 +69,7 @@ function Frota() {
     <main className="flex min-h-screen flex-col">
       <Header />
 
-      <section className="w-full px-4 py-4 md:px-20">
+      <section className="w-full px-4 py-4 pl-40 pr-20">
         {/* TÍTULO + CTA */}
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <h2 className="text-xl font-light">Frota</h2>

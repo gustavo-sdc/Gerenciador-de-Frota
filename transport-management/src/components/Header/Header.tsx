@@ -11,6 +11,7 @@ import {
   Wallet,
   Menu,
   X,
+  icons,
 } from "lucide-react";
 
 interface ItemsProps {
@@ -28,68 +29,97 @@ export default function Header({ items }: ItemsProps) {
 
   if (!items) {
     items = [
-      { name: "Inicio", type: "outline", to: "/dashboard", icon: <House size={18} className="mr-2" /> },
-      { name: "Frota", type: "outline", to: "/frota", icon: <Truck size={18} className="mr-2" /> },
-      { name: "Motoristas", type: "outline", to: "/motoristas", icon: <IdCardLanyard size={18} className="mr-2" /> },
-      { name: "Clientes", type: "outline", to: "/clientes", icon: <Users size={18} className="mr-2" /> },
-      { name: "Rotas", type: "outline", to: "/rotas", icon: <MapPinned size={18} className="mr-2" /> },
-      { name: "Financeiro", type: "outline", to: "/financeiro", icon: <Wallet size={18} className="mr-2" /> },
-    ];
+      { name: "Inicio", type: "outline", to: "/dashboard", icon: <House/> },
+      { name: "Frota", type: "outline", to: "/frota", icon: <Truck/> },
+      { name: "Motoristas", type: "outline", to: "/motoristas", icon: <IdCardLanyard/> },
+      { name: "Clientes", type: "outline", to: "/clientes", icon: <Users/> },
+      { name: "Rotas", type: "outline", to: "/rotas", icon: <MapPinned/> },
+      { name: "Financeiro", type: "outline", to: "/financeiro", icon: <Wallet/> },
+    ]; 
   }
 
   return (
-    <header className="border-b border-gray-100 bg-white">
-      {/* TOP BAR */}
-      <div className="flex items-center justify-between px-4 py-3 md:px-20">
-        <h1 className="flex items-center text-lg md:text-2xl">
-          <Truck size={28} className="mr-2" />
-          Gestor de frotas
-        </h1>
 
-        {/* MOBILE MENU BUTTON */}
-        <button
-          className="md:hidden"
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? <X size={28} /> : <Menu size={28} />}
-        </button>
-
-        {/* DESKTOP LOGOUT */}
-        <div className="hidden md:block">
-          <Button onClick={() => authContext.callSignOut()} type="logout">
-            <LogOut />
-            <p>Sair</p>
-          </Button>
+    <header className="h-screen absolute">
+      {!menuOpen ? (
+        <div className="background bg-blue-950 w-20 align-center p-2 h-screen flex flex-col justify-between py-5">
+            <button
+              className="menu text-white m-auto cursor-pointer"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+    
+    
+          <aside className={`flex flex-col items-center gap-1 wrap-normal w-full my-5 h-full`}>
+            <Button to="/dashboard" type="icon">
+              <House size={25}/>
+            </Button>
+            <Button to="/frota" type="icon">
+              <Truck size={25}/>
+            </Button>
+            <Button to="/motoristas" type="icon">
+              <IdCardLanyard size={25}/>
+            </Button>
+            <Button to="/clientes" type="icon">
+              <Users size={25}/>
+            </Button>
+            <Button to="/rotas" type="icon">
+              <MapPinned size={25}/>
+            </Button>
+            <Button to="/financeiro" type="icon">
+              <Wallet size={25}/>
+            </Button>
+    
+          </aside>
+    
+            <Button onClick={() => authContext.callSignOut()} type="logout">
+              <LogOut size={25} />
+            </Button>
         </div>
-      </div>
-
-      {/* NAV */}
-      <nav
-        className={`
-          flex items-center gap-1 px-4 pb-4 wrap-normal w-full px-20
-        `}
-      >
-        {items.map((item) => (
-          <Button
-            key={item.name}
-            type={item.type}
-            to={item.to}
-            name={item.name}
-            onClick={() => setMenuOpen(false)}
-          >
-            {item.icon}
-            <p>{item.name}</p>
-          </Button>
-        ))}
-
-        {/* MOBILE LOGOUT */}
-        <div className="md:hidden mt-2">
-          <Button onClick={() => authContext.callSignOut()} type="logout">
-            <LogOut />
-            <p>Sair</p>
-          </Button>
+        ) : (
+        <div className="background bg-blue-950 w-50 align-center p-2 h-screen flex flex-col justify-between py-5">
+            <button
+              className="menu text-white m-auto cursor-pointer"
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X size={28} /> : <Menu size={28} />}
+            </button>
+    
+    
+          <aside className={`flex flex-col items-center gap-1 w-full my-5 h-full`}>
+            <Button to="/dashboard" type="icon" addClasses="flex items-center justify-start pr-2 text-xl">
+              <House size={25} className="pr-2"/>
+              <p>Inicio</p>
+            </Button>
+            <Button to="/frota" type="icon" addClasses="flex items-center justify-start pr-2 text-xl">
+              <Truck size={25} className="pr-2"/>
+              <p>Frota</p>
+            </Button>
+            <Button to="/motoristas" type="icon" addClasses="flex items-center justify-start pr-2 text-xl">
+              <IdCardLanyard size={25} className="pr-2"/>
+              <p>Motoristas</p>
+            </Button>
+            <Button to="/clientes" type="icon" addClasses="flex items-center justify-start pr-2 text-xl">
+              <Users size={25} className="pr-2"/>
+              <p>Clientes</p>
+            </Button>
+            <Button to="/rotas" type="icon" addClasses="flex items-center justify-start pr-2 text-xl">
+              <MapPinned size={25} className="pr-2"/>
+              <p>Rotas</p>
+            </Button>
+            <Button to="/financeiro" type="icon" addClasses="flex items-center justify-start pr-2 text-xl">
+              <Wallet size={25} className="pr-2"/>
+              <p>Financeiro</p>
+            </Button>
+    
+          </aside>
+    
+            <Button onClick={() => authContext.callSignOut()} type="logout">
+              <LogOut size={25} />
+            </Button>
         </div>
-      </nav>
-    </header>
+        )}
+      </header>
   );
 }
