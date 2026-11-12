@@ -10,7 +10,13 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.netlify
 *.local
+android/.gradle
+android/local.properties
+android/app/build
+android/garagem-release.keystore
+android/keystore.properties
 
 # Editor directories and files
 .vscode/*

@@ -1,9 +1,2 @@
-import Header from "../../components/Header/Header";
-
-export default function Financeiro() {
-    return (
-        <main>
-            <Header />
-        </main>
-    )
-}
+import ResourceManager from "../../components/ResourceManager";
+export default function Financeiro() { return <ResourceManager resource="finances"/>; }

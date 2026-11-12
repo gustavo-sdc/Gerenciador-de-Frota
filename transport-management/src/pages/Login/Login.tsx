@@ -1,84 +1,57 @@
-import Input from "../../components/Input/Input"
-import { useState } from "react"
-import { useNavigate } from "react-router"
-import { login } from "../../lib/user"
-import { AuthContext } from "../../hooks/authContext"
-import toast, { Toaster } from 'react-hot-toast';
-import React from "react"
+import { useContext, useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../hooks/authContextValue";
+import { login } from "../../lib/user";
 
+export default function Login() {
+  const auth = useContext(AuthContext);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const requestedPath = (location.state as { from?: unknown } | null)?.from;
+  const returnPath = typeof requestedPath === "string" && requestedPath.startsWith("/") && !requestedPath.startsWith("//")
+    ? requestedPath : "/dashboard";
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
-function Login(){
-    const authContextData = React.useContext(AuthContext)
-    const Navigate = useNavigate()
-    const [loginError, setLoginError] = useState(false)
-    const [user, setUser] = useState({
-        email: '',
-        password: ''
-    })
-
-
-    const handleChange = (e : React.ChangeEvent<HTMLInputElement>) =>{
-        setUser({...user, [e.target.name]: e.target.value})
+  useEffect(() => {
+    if (!auth.isLoading && auth.isAuthenticated) {
+      navigate(auth.tenantId ? returnPath : "/register", { replace: true });
     }
+  }, [auth.isAuthenticated, auth.isLoading, auth.tenantId, navigate, returnPath]);
 
-    const submitLogin = async (e: React.FormEvent) =>{
-        e.preventDefault()
-
-        setUser({
-            email: user.email,
-            password: user.password
-        })
-        
-        
-        try {
-            
-            const submit = await login(user)
-            console.log("🚀 ~ submitLogin ~ submit:", submit)
-
-            if(submit.user.role === 'authenticated'){
-                authContextData.toggleAuth()
-                console.log(" auth: ", authContextData.isAuthenticated)
-
-                authContextData.setUserId(submit.user.id)
-                Navigate('/dashboard')
-            }
-
-        }catch(e){
-            console.log(e)
-
-            toast.error(e.message)
-
-            setLoginError(true)
-        }
-
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      await login({ email, password });
+      const access = await auth.refreshAccess();
+      navigate(access?.tenant_id ? returnPath : "/register", { replace: true });
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Não foi possível entrar.");
+    } finally {
+      setBusy(false);
     }
+  }
 
+  return <main className="grid min-h-screen place-items-center bg-[#f8f9fa] p-5">
+    <form onSubmit={submit} className="w-full max-w-md rounded-3xl border border-slate-300 bg-white p-6 shadow-xl sm:p-9">
+      <p className="text-sm font-semibold uppercase tracking-wider text-blue-700">Garagem</p>
+      <h1 className="mt-2 text-2xl font-semibold text-slate-900">Acesse sua empresa</h1>
+      <p className="mt-2 text-sm text-slate-600">Entre com sua conta para acessar os dados vinculados ao seu tenant.</p>
 
-    return(
-        <main className="bg-gradient-to-r from-blue-800 via-blue-500 to-blue-400 text-gray w-screen h-screen flex flex-col items-center justify-center">
+      <label htmlFor="login-email" className="mt-6 block text-sm font-medium text-slate-700">E-mail</label>
+      <input id="login-email" name="email" type="email" required autoComplete="username" inputMode="email" value={email} onChange={event => setEmail(event.target.value)} className="mt-1.5 h-12 w-full rounded-xl border border-slate-300 px-3 text-base text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100" />
+      <label htmlFor="login-password" className="mt-4 block text-sm font-medium text-slate-700">Senha</label>
+      <input id="login-password" name="password" type="password" required autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} className="mt-1.5 h-12 w-full rounded-xl border border-slate-300 px-3 text-base text-slate-900 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100" />
 
-            <Toaster /> 
-
-            <h1 className="text-3xl font-regular mb-8 text-gray-200 px-4 text-center max-w-[400px] ">{ loginError ? `Tente novamente!` : `Seja bem vindo ao seu gerenciador de frotas!`}</h1>
-            
-            <form action="submit" className="w-xs">
-
-                <div className="lg-my-10 sm-my-25">
-                    <Input label="Email:" name="email" type="email" value={user.email} onChange={handleChange}/>
-                    <Input label="Password:" name="password" type="password" value={user.password} onChange={handleChange}/>
-
-                </div>
-
-                <div className="flex justify-between mb-6">
-                    <a onClick={()=> Navigate('/recovery')} className="text-gray-200 text-sm underline">Esqueci minha senha</a>
-                    <a href="/register" className="text-gray-200 text-sm">Cadastrar-se</a>
-                </div>
-
-                <button type="submit" className="bg-gray-800 btn p-2 rounded-xl w-full text-gray-300 font-bold cursor-pointer" onClick={submitLogin} >Login</button>
-
-            </form>
-        </main>
-    )
+      <div className="mt-3 text-right"><Link to="/recovery" className="text-sm font-medium text-blue-700 underline underline-offset-2">Esqueci minha senha</Link></div>
+      {error && <p role="alert" className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-700">{error}</p>}
+      <button type="submit" disabled={busy || auth.isLoading} className="mt-5 min-h-14 w-full rounded-xl bg-blue-700 px-4 font-bold text-white shadow-md hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60">{busy ? "Entrando…" : "Entrar"}</button>
+      <p className="mt-5 text-center text-sm text-slate-600">Ainda não tem uma empresa cadastrada? <Link to="/register" className="font-semibold text-blue-700 underline underline-offset-2">Criar conta</Link></p>
+      <p className="mt-4 text-center text-base text-slate-600"><Link to="/privacidade" className="underline">Privacidade</Link><span aria-hidden="true"> · </span><Link to="/excluir-conta" className="underline">Excluir conta</Link></p>
+    </form>
+  </main>;
 }
-
-export default Login

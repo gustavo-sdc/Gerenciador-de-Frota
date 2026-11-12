@@ -1,1 +1,136 @@
 @import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+html {
+  min-width: 320px;
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  background: #f8f9fa;
+  color: #1a1a1a;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Small Tailwind labels are raised to a readable 16 px minimum. */
+.text-xs,
+.text-sm {
+  font-size: 1rem !important;
+  line-height: 1.45 !important;
+}
+
+.text-slate-400,
+.text-slate-500,
+.text-gray-400,
+.text-gray-500 {
+  color: #41464b !important;
+}
+
+h1, h2, h3, h4 {
+  color: #17191c;
+  font-weight: 700;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  min-height: 56px;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgb(15 23 42 / 12%);
+  transition: transform 200ms ease, filter 200ms ease, background-color 200ms ease;
+}
+
+button:not(:disabled):active {
+  transform: scale(0.97);
+  filter: brightness(0.9);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.15);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select {
+  min-height: 56px;
+  font-size: 1rem;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  width: 24px;
+  height: 24px;
+  accent-color: #526b7d;
+}
+
+input[type="range"] {
+  min-height: 40px;
+  accent-color: #526b7d;
+}
+
+textarea {
+  min-height: 88px;
+  font-size: 1rem;
+}
+
+a.flex,
+a.inline-flex {
+  min-height: 56px;
+}
+
+.bg-blue-50 { background-color: #edf2f4 !important; }
+.bg-blue-100 { background-color: #dfe8ed !important; }
+.bg-blue-600,
+.bg-blue-700 { background-color: #526b7d !important; }
+.bg-blue-800,
+.hover\:bg-blue-800:hover { background-color: #3e5669 !important; }
+.text-blue-600,
+.text-blue-700 { color: #435d70 !important; }
+.text-blue-800,
+.text-blue-900 { color: #344c5e !important; }
+.border-blue-100,
+.border-blue-200 { border-color: #d3dee4 !important; }
+.ring-blue-100 { --tw-ring-color: #dbe5ea !important; }
+
+@media (max-width: 767px) {
+  body:has(nav[aria-label="Navegação rápida"]) main {
+    padding-bottom: 6rem !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid #64748b;
+  outline-offset: 2px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #64748b !important;
+  outline: 2px solid #64748b !important;
+  outline-offset: -2px !important;
+  box-shadow: none !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+}
+
+::selection {
+  background: #d3dee4;
+  color: #111827;
+}

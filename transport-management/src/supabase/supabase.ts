@@ -9,6 +9,13 @@ if (!supabaseUrl || !supabaseKey) {
   console.log('Missing Supabase URL or Key in environment variables');
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    storage: window.localStorage,
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+})
 
 export default supabase

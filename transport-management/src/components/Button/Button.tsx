@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router"
 
 interface dataButton{
@@ -7,24 +6,28 @@ interface dataButton{
     children?: React.ReactNode;
     addClasses?: string;
     onClick?: () => void;
+    disabled?: boolean;
+    htmlType?: "button" | "submit";
 }
 
-function Button({type, to, children, addClasses, onClick}: dataButton){
+function Button({type, to, children, addClasses = "", onClick, disabled, htmlType}: dataButton){
     const navigate = useNavigate();
 
     const types = {
-        primary: 'bg-blue-600 text-white p-2 rounded-lg rounded-xl',
-        secondary: 'bg-gray-500 text-gray-200 p-2 rounded-lg rounded-xl',
-        outline: 'bg-gray-50 border border-gray-300 text-gray-600 p-2 rounded-lg hover:bg-gray-100 hover:text-gray-500 hover:border-gray-100 transition-all',
-        logout: 'bg-red-600 text-white p-2 rounded-sm hover:bg-red-700 transition-all',
-        icon: 'bg-transparent text-white p-2 rounded-sm hover:bg-blue-900 transition-all2'
+        primary: 'bg-blue-700 text-white rounded-sm shadow-sm hover:bg-blue-800',
+        secondary: 'bg-slate-800 text-white rounded-sm shadow-sm hover:bg-slate-900',
+        outline: 'bg-white border border-slate-400 text-slate-900 rounded-sm hover:bg-slate-100 transition-colors',
+        logout: 'bg-red-700 text-white rounded-sm shadow-sm hover:bg-red-800',
+        icon: 'bg-transparent text-slate-900 rounded-sm hover:bg-slate-100'
     }
     
     return(
         <button 
             className={
-                types[type] + "w-max[300px] w-full flex items-center justify-center p-2 cursor-pointer" + addClasses
+                types[type] + " w-full min-h-14 flex items-center justify-center gap-2 px-5 py-3 text-base font-semibold transition-all duration-200 active:scale-95 active:bg-opacity-80 focus-visible:outline focus-visible:outline-3 focus-visible:outline-blue-700 " + addClasses
             }
+            disabled={disabled}
+            type={htmlType ?? "button"}
             onClick={() => {
                 if (to) {
                     navigate(to);

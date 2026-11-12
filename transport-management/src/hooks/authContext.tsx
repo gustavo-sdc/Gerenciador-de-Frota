@@ -1,72 +1,114 @@
-import React, { createContext, useState, useEffect } from 'react';
-import { getSession } from '../lib/session';
-import { signOut } from '../lib/user';
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Capacitor } from "@capacitor/core";
+import { App } from "@capacitor/app";
+import { AuthContext, type TenantAccess } from "./authContextValue";
+import supabase from "../supabase/supabase";
 
-interface AuthContextType {
-    isAuthenticated: boolean;
-    userId: string | null;
-    tenantId: string | null;
-    toggleAuth: () => void;
-    setUserId: (id: string | null) => void;
-    callSignOut: () => void;
-    setTenantId: (id: string | null) => void;
-}
-        
 interface AuthContextProviderProps {
-    children?: React.ReactNode;
+  children?: React.ReactNode;
 }
-
-export const AuthContext = createContext<AuthContextType>({
-    isAuthenticated: false,
-    userId: null,
-    tenantId: null,
-    toggleAuth: () => {},
-    setUserId: () => {},
-    callSignOut: () => {},
-    setTenantId: () => {}
-});
 
 export function AuthContextProvider({ children }: AuthContextProviderProps) {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [userId, setUserId] = useState<string | null>(null);
-    const [tenantId, setTenantId] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [access, setAccess] = useState<TenantAccess | null>(null);
+  const [accessError, setAccessError] = useState<string | null>(null);
+  const requestId = useRef(0);
 
-    const toggleAuth = () => setIsAuthenticated(prev => !prev);
+  const fetchAccess = useCallback(async (currentRequest: number) => {
+    try {
+      const { data, error } = await supabase.rpc("get_my_access").maybeSingle();
+      if (requestId.current !== currentRequest) return null;
+      if (error) throw error;
 
-    const callSignOut = () => {
-        setIsAuthenticated(false);
-        setUserId(null);
-        setTenantId(null);
-        fetchSignOut();
+      const nextAccess = data as TenantAccess | null;
+      setAccess(nextAccess);
+      setAccessError(null);
+      return nextAccess;
+    } catch {
+      if (requestId.current === currentRequest) {
+        setAccess(null);
+        setAccessError("Não foi possível confirmar o acesso da empresa. Tente novamente.");
+      }
+      throw new Error("Não foi possível confirmar o acesso da empresa.");
+    } finally {
+      if (requestId.current === currentRequest) setIsLoading(false);
     }
-    
-    useEffect(() => {
-        fetchSession();
-    }, []);
+  }, []);
 
-    const fetchSignOut = async () => {
-        const response = await signOut();
-        console.log("Sign-out successful:", response);
-        
-    }
-    
-    const fetchSession = async () => {
-        const session = await getSession();
-        console.log("Session:", session);
+  const refreshAccess = useCallback(() => {
+    const currentRequest = ++requestId.current;
+    setIsLoading(true);
+    setAccessError(null);
+    return fetchAccess(currentRequest);
+  }, [fetchAccess]);
 
-        if (session?.session?.user) {
-            setUserId(session.session.user.id);
-            setIsAuthenticated(true);
+  useEffect(() => {
+    let disposed = false;
+    let removeAppListener: (() => void) | null = null;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const currentRequest = ++requestId.current;
+      const user = session?.user;
+      setUserId(user?.id ?? null);
+      setIsAuthenticated(Boolean(user));
+      setAccess(null);
+      setAccessError(null);
+
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      // Supabase recommends doing Auth-dependent requests after the auth callback returns.
+      window.setTimeout(() => { void fetchAccess(currentRequest).catch(() => {}); }, 0);
+    });
+
+    if (Capacitor.isNativePlatform()) {
+      supabase.auth.startAutoRefresh();
+      void App.addListener("appStateChange", ({ isActive }) => {
+        if (isActive) {
+          supabase.auth.startAutoRefresh();
+          void supabase.auth.getSession();
         } else {
-            setUserId(null);
-            setIsAuthenticated(false);
+          supabase.auth.stopAutoRefresh();
         }
+      }).then((listener) => {
+        if (disposed) void listener.remove();
+        else removeAppListener = () => { void listener.remove(); };
+      });
+    }
+
+    return () => {
+      disposed = true;
+      requestId.current += 1;
+      subscription.unsubscribe();
+      removeAppListener?.();
+      if (Capacitor.isNativePlatform()) supabase.auth.stopAutoRefresh();
     };
+  }, [fetchAccess]);
 
+  const callSignOut = useCallback(async () => {
+    const { error } = await supabase.auth.signOut({ scope: "local" });
+    if (error) throw new Error("Não foi possível sair. Tente novamente.");
+  }, []);
 
-    return (
-        <AuthContext.Provider value={{ isAuthenticated, userId, toggleAuth, setUserId, callSignOut, setTenantId, tenantId }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider value={{
+      isAuthenticated,
+      isLoading,
+      userId,
+      tenantId: access?.tenant_id ?? null,
+      role: access?.role ?? null,
+      accessStatus: access?.status ?? null,
+      accessUntil: access?.access_until ?? null,
+      blockReason: access?.block_reason ?? null,
+      accessError,
+      refreshAccess,
+      callSignOut,
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
